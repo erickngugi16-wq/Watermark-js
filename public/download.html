@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PIXELMARK - Download</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <h2><i class="fas fa-palette"></i> PIXELMARK</h2>
+        </div>
+        <div class="nav-links">
+            <a href="index.html" class="nav-btn"><i class="fas fa-home"></i> Home</a>
+            <a href="dashboard.html" class="nav-btn"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a href="upload.html" class="nav-btn"><i class="fas fa-upload"></i> Upload</a>
+            <a href="customize.html" class="nav-btn"><i class="fas fa-sliders-h"></i> Customize</a>
+            <a href="download.html" class="nav-btn active"><i class="fas fa-download"></i> Download</a>
+        </div>
+    </nav>
+
+    <div class="page-container">
+        <div class="card">
+            <h2><i class="fas fa-download"></i> processed previews & download</h2>
+            <div id="previewGrid" class="image-grid">
+                <!-- previews will be inserted here -->
+            </div>
+            <div style="text-align: center; margin: 2rem 0;" id="noImagesMsg">
+                <p class="badge">no processed images yet</p>
+            </div>
+            <div style="display: flex; gap: 1rem; justify-content: center;">
+                <button id="downloadAll" class="btn btn-success"><i class="fas fa-file-zipper"></i> download all as zip</button>
+                <a href="upload.html" class="btn btn-warning"><i class="fas fa-redo"></i> new batch</a>
+            </div>
+            <div style="margin-top: 1rem;" id="invisibleNote"></div>
+        </div>
+    </div>
+
+    <script>
+        async function loadPreviews() {
+            const response = await fetch('/processed/list');
+            const images = await response.json();
+            const grid = document.getElementById('previewGrid');
+            const noMsg = document.getElementById('noImagesMsg');
+            const invisibleNote = document.getElementById('invisibleNote');
+            grid.innerHTML = '';
+            if (images.length === 0) {
+                noMsg.style.display = 'block';
+                invisibleNote.innerHTML = '';
+            } else {
+                noMsg.style.display = 'none';
+                images.forEach(img => {
+                    grid.innerHTML += `
+                        <div class="img-card">
+                            <img src="/processed/${img}" alt="preview">
+                            <a href="/processed/${img}" download class="btn btn-sm" style="margin-top: 0.5rem;"><i class="fas fa-download"></i> Download</a>
+                        </div>
+                    `;
+                });
+                // Check if invisible was applied
+                const settings = JSON.parse(sessionStorage.getItem('watermarkSettings') || '{}');
+                if (settings.invisible) {
+                    invisibleNote.innerHTML = '<p class="badge"><i class="fas fa-eye-slash"></i> invisible forensic data embedded (hash "ERICK")</p>';
+                }
+            }
+        }
+        loadPreviews();
+
+        document.getElementById('downloadAll').addEventListener('click', () => {
+            window.location.href = '/download-zip';
+        });
+    </script>
+
+    <footer class="footer">
+        <p>PIXELMARK</p>
+        <p>WE GOT YOU!!</p>
+    </footer>
+</body>
+</html>

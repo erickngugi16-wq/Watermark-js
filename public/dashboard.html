@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PIXELMARK - Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <h2><i class="fas fa-palette"></i> PIXELMARK</h2>
+        </div>
+        <div class="nav-links">
+            <a href="index.html" class="nav-btn"><i class="fas fa-home"></i> Home</a>
+            <a href="dashboard.html" class="nav-btn active"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a href="upload.html" class="nav-btn"><i class="fas fa-upload"></i> Upload</a>
+            <a href="customize.html" class="nav-btn"><i class="fas fa-sliders-h"></i> Customize</a>
+            <a href="download.html" class="nav-btn"><i class="fas fa-download"></i> Download</a>
+        </div>
+    </nav>
+
+    <div class="page-container">
+        <div class="card">
+            <h2><i class="fas fa-chart-pie"></i> Are you an artist in need of art or image protection? Search no more!</h2>
+            <div style="display: flex; gap: 2rem; flex-wrap: wrap; margin: 2rem 0;">
+                <div class="badge" style="font-size: 1.4rem;">WATERMARK: <span id="imgCount">0</span></div>
+                <div class="badge" style="font-size: 1.4rem;">RESIZE: <span id="wmOpacity">DONE</span></div>
+                <div class="badge" style="font-size: 1.4rem;">LSB PROTECT: <span id="wmPosition">DONE</span></div>
+            </div>
+            <div style="text-align: center;">
+                <i class="fas fa-info-circle" style="color: #b37096;"> Your one-stop watermarking and resizing tool</i>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load from sessionStorage if available
+        const settings = JSON.parse(sessionStorage.getItem('watermarkSettings') || '{}');
+        document.getElementById('imgCount').innerText = sessionStorage.getItem('imageCount') || '0';
+        if (settings.opacity) document.getElementById('wmOpacity').innerText = settings.opacity;
+        if (settings.position) document.getElementById('wmPosition').innerText = settings.position;
+    </script>
+
+    <footer class="footer">
+        <p>PIXELMARK</p>
+        <p>WE GOT YOU!!</p>
+    </footer>
+</body>
+</html>
