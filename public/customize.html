@@ -1,0 +1,171 @@
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PIXELMARK - Customize</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <h2><i class="fas fa-palette"></i> PIXELMARK</h2>
+        </div>
+        <div class="nav-links">
+            <a href="index.html" class="nav-btn"><i class="fas fa-home"></i> Home</a>
+            <a href="dashboard.html" class="nav-btn"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a href="upload.html" class="nav-btn"><i class="fas fa-upload"></i> Upload</a>
+            <a href="customize.html" class="nav-btn active"><i class="fas fa-sliders-h"></i> Customize</a>
+            <a href="download.html" class="nav-btn"><i class="fas fa-download"></i> Download</a>
+        </div>
+    </nav>
+
+    <div class="page-container">
+        <div class="card">
+            <h2><i class="fas fa-cog"></i> watermark + resize panel</h2>
+            <form id="settingsForm" enctype="multipart/form-data">
+                <!-- Watermark type -->
+                <div class="setting-row">
+                    <div class="form-group">
+                        <label>watermark type</label>
+                        <div style="display: flex; gap: 1rem;">
+                            <label><input type="radio" name="wmType" value="text" checked> text (© signature)</label>
+                            <label><input type="radio" name="wmType" value="image"> image (logo)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Text input (shown when text selected) -->
+                <div class="setting-row" id="textInputGroup">
+                    <div class="form-group">
+                        <label>TI text (if text mode)</label>
+                        <input type="text" name="textSignature" value="© Erick N. K.">
+                    </div>
+                </div>
+
+                <!-- Logo upload (hidden by default) -->
+                <div class="setting-row" id="logoUploadGroup" style="display: none;">
+                    <div class="form-group">
+                        <label>logo upload (image mode)</label>
+                        <input type="file" name="logo" accept="image/*">
+                    </div>
+                </div>
+
+                <!-- Opacity -->
+                <div class="setting-row">
+                    <div class="form-group">
+                        <label>opacity (0.1 - 1): <span id="opacityVal">0.5</span></label>
+                        <input type="range" name="opacity" id="opacity" min="0.1" max="1" step="0.1" value="0.5">
+                    </div>
+                </div>
+
+                <!-- Position -->
+                <div class="setting-row">
+                    <div class="form-group">
+                        <label>position</label>
+                        <select name="position">
+                            <option value="top-left">top-left</option>
+                            <option value="top-right">top-right</option>
+                            <option value="bottom-left">bottom-left</option>
+                            <option value="bottom-right" selected>bottom-right</option>
+                            <option value="center">center</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Scale % -->
+                <div class="setting-row">
+                    <div class="form-group">
+                        <label>watermark scale %: <span id="scaleVal">25</span>%</label>
+                        <input type="range" name="scale" id="scale" min="5" max="50" value="25">
+                    </div>
+                </div>
+
+                <!-- Resize width/height -->
+                <div class="setting-row">
+                    <div class="form-group">
+                        <label>resize width (px)</label>
+                        <input type="number" name="width" value="800" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>height (px, 0 = auto aspect)</label>
+                        <input type="number" name="height" value="0" min="0">
+                    </div>
+                </div>
+
+                <!-- Invisible watermark -->
+                <div class="setting-row">
+                    <div class="form-group">
+                        <label>extra: invisible watermark</label>
+                        <label><input type="checkbox" name="invisible" value="yes"> embed LSB (hash "ERICK")</label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn"><i class="fas fa-check"></i> Apply & Go to Download</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Toggle text/logo fields
+        const wmTypeRadios = document.querySelectorAll('input[name="wmType"]');
+        const textGroup = document.getElementById('textInputGroup');
+        const logoGroup = document.getElementById('logoUploadGroup');
+
+        wmTypeRadios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                if (e.target.value === 'text') {
+                    textGroup.style.display = 'flex';
+                    logoGroup.style.display = 'none';
+                } else {
+                    textGroup.style.display = 'none';
+                    logoGroup.style.display = 'flex';
+                }
+            });
+        });
+
+        // Update displayed values
+        document.getElementById('opacity').addEventListener('input', e => {
+            document.getElementById('opacityVal').innerText = e.target.value;
+        });
+        document.getElementById('scale').addEventListener('input', e => {
+            document.getElementById('scaleVal').innerText = e.target.value;
+        });
+
+        // Form submission (multipart)
+        document.getElementById('settingsForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+
+            // Save to sessionStorage for dashboard
+            const settings = {
+                opacity: formData.get('opacity'),
+                position: formData.get('position'),
+                scale: formData.get('scale'),
+                width: formData.get('width'),
+                height: formData.get('height'),
+                invisible: formData.get('invisible') === 'yes',
+                wmType: formData.get('wmType'),
+                textSignature: formData.get('textSignature')
+            };
+            sessionStorage.setItem('watermarkSettings', JSON.stringify(settings));
+
+            const response = await fetch('/process', {
+                method: 'POST',
+                body: formData   // multipart, so it includes file if any
+            });
+
+            if (response.ok) {
+                window.location.href = 'download.html';
+            } else {
+                alert('Processing failed');
+            }
+        });
+    </script>
+
+    <footer class="footer">
+        <p>GumGum</p>
+        <p>Jet Pistol</p>
+    </footer>
+</body>
+</html>

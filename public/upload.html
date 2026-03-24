@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PIXELMARK - Upload</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <h2><i class="fas fa-palette"></i> PIXELMARK</h2>
+        </div>
+        <div class="nav-links">
+            <a href="index.html" class="nav-btn"><i class="fas fa-home"></i> Home</a>
+            <a href="dashboard.html" class="nav-btn"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a href="upload.html" class="nav-btn active"><i class="fas fa-upload"></i> Upload</a>
+            <a href="customize.html" class="nav-btn"><i class="fas fa-sliders-h"></i> Customize</a>
+            <a href="download.html" class="nav-btn"><i class="fas fa-download"></i> Download</a>
+        </div>
+    </nav>
+
+    <div class="page-container">
+        <div class="card">
+            <h2><i class="fas fa-cloud-upload-alt"></i> batch image upload</h2>
+            <form id="uploadForm" enctype="multipart/form-data">
+                <div class="upload-area" id="dropArea">
+                    <i class="fas fa-images" style="font-size: 4rem; color: #b37096;"></i>
+                    <h3>drag & drop or click</h3>
+                    <p>PNG, JPG, WEBP up to 20MB</p>
+                    <input type="file" name="images[]" id="images" class="file-input" multiple accept="image/*" required>
+                </div>
+                <div id="fileList" style="margin: 1rem 0; min-height: 2rem;"></div>
+                <button type="submit" class="btn"><i class="fas fa-arrow-right"></i> next: watermark settings</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Show selected file names
+        document.getElementById('images').addEventListener('change', function() {
+            let names = Array.from(this.files).map(f => f.name).join('<br>');
+            document.getElementById('fileList').innerHTML = `<span class="badge">${this.files.length} images selected</span><br><small>${names}</small>`;
+        });
+
+        // Drag & drop
+        const dropArea = document.getElementById('dropArea');
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, e => e.preventDefault(), false);
+        });
+        dropArea.addEventListener('drop', function(e) {
+            const dt = e.dataTransfer;
+            document.getElementById('images').files = dt.files;
+            // trigger change event
+            document.getElementById('images').dispatchEvent(new Event('change'));
+        });
+        dropArea.addEventListener('click', () => document.getElementById('images').click());
+
+        // Submit
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const response = await fetch('/upload', {
+                method: 'POST',
+                body: formData
+            });
+            if (response.ok) {
+                // Store image count in sessionStorage for dashboard
+                const files = document.getElementById('images').files;
+                sessionStorage.setItem('imageCount', files.length);
+                window.location.href = 'customize.html';
+            } else {
+                alert('Upload failed');
+            }
+        });
+    </script>
+
+    <footer class="footer">
+        <p>GumGum</p>
+        <p>Haki</p>
+    </footer>
+</body>
+</html>
