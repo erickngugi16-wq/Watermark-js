@@ -9,6 +9,7 @@ const fs = require('fs');
 const app = express();
 const upload = multer({ dest: 'uploads/' });
 
+console.log("StartingPIXELMARK server...");
 // Middleware
 app.use(express.static('public'));
 app.use(express.json());
@@ -24,6 +25,11 @@ app.use(session({
 });
 
 // -------------------- Routes --------------------
+
+// Root route
+app.get('/', (req, res) => {
+    res.send('PIXELMARK backend is running');
+});
 
 // 1. Upload images only (no watermark yet)
 app.post('/upload', upload.array('images[]'), (req, res) => {
@@ -205,6 +211,6 @@ app.get('/download-zip', (req, res) => {
 
 // Start server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`PIXELMARK running on http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`PIXELMARK running on port ${PORT}`);
 });
